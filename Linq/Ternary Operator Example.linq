@@ -47,7 +47,7 @@ Albums
 		Year = x.ReleaseYear
 	})
 		.OrderBy(x => x.Label)
-		
+
 //  HOMEWORK!!!!!!!
 
 //  List all albums showing the Title, Artist Name, Year and
@@ -55,5 +55,33 @@ Albums
 //  (Oldies, 70s, 80s, 90s or Modern)
 //  Order by decades.
 
+Albums
+	.Select(x => new
+	{
+		Title = x.Title,
+		Artist = x.Artist.Name,
+		Year = x.ReleaseYear,
+		Decade = x.ReleaseYear < 1970? "Oldies" :
+				x.ReleaseYear < 1980 ? "70s":
+				x.ReleaseYear < 1990 ? "80s" :
+				x.ReleaseYear < 2000 ? "90s" : "Modern"
+	}).OrderBy(x => x.Year)
+	.ThenBy(x => x.Decade)
+	.Dump()
 
+//  if < 1970
+//  Oldies
+// else
+// (< 1980
+//  70s
+// else
+//  (< 1990
+//  80s
+//  else
+//  (< 2000
+//  90s
+//  else
+//  Modern)))
 
+//  sum of all cost < selling price ? profit : loss
+//  Show item #, profit/loss
