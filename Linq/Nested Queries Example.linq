@@ -41,6 +41,48 @@ void Main()
 	//	One for the employees
 	//	One for the customers
 	//  Concerns:  The list are inter mixed!!!
+	
+	//  C# point of view in a class definition
+	//  A composite class can have a single occurring field AND
+	//   use of other classes
+	//  Other classes maybe a single instance OR collection<T>
+	//  List<T>, IEnummerable<T>, IQueryAble is a collection with a datatype of <T>
+	
+	//  ClassName
+	//  Property
+	//  Property
+	//  Collection<T>  (set of records, still a property)
+	
+	var result = Employees
+					.Where(e => e.Title.Contains("Sales Support"))
+					.Select( e => new EmployeeItem
+					{
+						FullName = e.LastName + ", " + e.FirstName,
+						Title = e.Title,
+						Phone = e.Phone,
+						CustomerList = Customers
+										.Where(c => c.SupportRep.EmployeeId == e.EmployeeId)
+										.Select(c => new CustomerItem
+										{
+											FullName = c.LastName + ", " + c.FirstName,
+											City = c.City,
+											State = c.State
+										}).ToList()
+					});
+					result.Dump();
+	
 }
-
-// You can define other methods, fields, classes and namespaces here
+ public class EmployeeItem
+ {
+ 	public string FullName;
+	public string Title;
+	public string Phone;
+	public List<CustomerItem> CustomerList {get; set;}
+ }
+ 
+ public class CustomerItem
+{
+	public string FullName { get; set;}
+	public string City { get; set;}
+	public string State { get; set;}
+ }
