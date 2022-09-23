@@ -79,8 +79,19 @@ var resultDistinct = Customers
 						.OrderBy( c=> c.Country)
 						.Select(c => c.Country)
 						.Distinct()
-						.Dump()
+						//.Dump()
 						;
+						
+// .Take() and SKip()
+//  In1517, whey you wanted to use your paginator
+//   the quesry method was to return ONLY the
+//   needed records to display
+//	a)  You passed in the pagesize and pagenumber
+//	b)  the quesry was executed, returning all rows
+//	c)  Set your out parameter to the .Count of rows
+//  d)  Calculated the number of rows to skip (pageNumber -1) * pagesize
+//	e)	On the return statement, against your collection, you used a .SKIP & .TAKE
+//	Retrun variableName.Skip(rowsSku=ipped).Take(pagesize).ToList()
 }
 
 
