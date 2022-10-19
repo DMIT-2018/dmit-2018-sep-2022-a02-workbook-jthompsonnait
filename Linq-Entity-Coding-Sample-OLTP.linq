@@ -16,23 +16,65 @@
 
 void Main()
 {
-	//  query method using linq to entity
+	try
+	{
+		#region Query method using linq to entity
 
-	//  Track_FetchTrackBy
-	//	TrackService is the BLL
-	//	FetchTrackBy is the method name
+		//  Track_FetchTrackBy
+		//	TrackService is the BLL
+		//	FetchTrackBy is the method name
 
-	string searchPattern = "deep";
-	string searchType = "JamesWasHere";
+		string searchPattern = "deep";
+		string searchType = "Artist";
+		List<TrackSelection> tracklist_display = TrackService_FetchTrackBy(searchType, searchPattern);
+		//tracklist_display.Dump();
 
-	List<TrackSelection> tracklist_display = TrackService_FetchTrackBy(searchType,
-																searchPattern);
-	tracklist_display.Dump()
-	;
+		//  PlaylistTrack is the BLL
+		//  FetchPlaylist is the method name
+
+		//  string playlistName = "hansenb1";
+		string userName = "HansenB";
+		//  List<PlaylistTrackInfo> playlist_display = PlaylistTrack_FetchPlaylist(playlistName, userName);
+		//  playlist_display.Dump();
+		#endregion
+
+		#region Command method using linq to entity
+		//	793	A Castle Full of Rascals
+		//	822	A Twist In The Tail
+		//	543	Burn
+		//	756	Child In Time
+
+		string playlistName = null;// "hansenbtest";
+		int trackID = 822;
+		PlaylistTrack_AddTrack(playlistName, userName, trackID);
+		#endregion
+	}
+	catch (AggregateException ex)
+	{
+		foreach (var error in ex.InnerExceptions)
+		{
+			error.Message.Dump();
+		}
+	}
+	catch (ArgumentNullException ex)
+	{
+		GetInnerException(ex).Message.Dump();
+	}
+	catch(Exception ex)
+	{
+		GetInnerException(ex).Message.Dump();
+	}
+}
+
+private Exception GetInnerException(Exception ex)
+{
+	while (ex.InnerException != null)
+		ex = ex.InnerException;
+	return ex;
 }
 
 // You can define other methods, fields, classes and namespaces here
-
+#region Models
 public class TrackSelection
 {
 	public int TrackId { get; set; }
@@ -42,6 +84,15 @@ public class TrackSelection
 	public int Milliseconds { get; set; }
 	public decimal Price { get; set; }
 }
+
+public class PlaylistTrackInfo
+{
+	public int TrackId { get; set; }
+	public int TrackNumber { get; set; }
+	public string SongName { get; set; }
+	public int Milliseconds { get; set; }
+}
+#endregion
 
 #region Track BLL (TrackService)
 #region Query
@@ -66,6 +117,59 @@ public List<TrackSelection> TrackService_FetchTrackBy(string searchType
 }
 
 #endregion
+#endregion
+
+#region PlaylistTrack Bll (PlaylistTrackService)
+#region Query
+public List<PlaylistTrackInfo> PlaylistTrack_FetchPlaylist(string playlistName,
+														string userName)
+{
+	IEnumerable<PlaylistTrackInfo> playlistTrackInfos = PlaylistTracks
+									.Where(x => x.Playlist.Name == playlistName &&
+											x.Playlist.UserName == userName)
+									.Select(x => new PlaylistTrackInfo
+									{
+										TrackId = x.TrackId,
+										TrackNumber = x.TrackNumber,
+										SongName = x.Track.Name,
+										Milliseconds = x.Track.Milliseconds
+									}).OrderBy(x => x.TrackNumber);
+	return playlistTrackInfos.ToList();
+}
+
+#endregion
+#endregion
+
+#region Commands
+public void PlaylistTrack_AddTrack(string playlistName, string userName, int trackID)
+{
+	//  create local variables
+
+
+	//  create a List<Exception> to contain all discovered errors
+	List<Exception> errorList = new List<Exception>();
+
+	//	Business Rules
+	//	these are processing rules that need to be satisfied for valid data.
+	//		rule:	a track can only exist once on a playlist
+	//		rule:	each track on a playlist is assigned a continous track number
+	//
+	//	If the business rules are passed, consider the data valid, then
+	//		a)	stage your transaction work (Adds, Updates, Deletes)
+	//		b)	excute a SINGLE .SaveChanges() - commits to database
+
+	//	We could assume that user name and track ID will always be valid.
+
+	//	parameter validation
+	if (string.IsNullOrWhiteSpace(playlistName))
+	{
+		throw new ArgumentNullException("Playlist name is missing");
+	}
+	if (string.IsNullOrWhiteSpace(userName))
+	{
+		throw new ArgumentNullException("User name is missing");
+	}
+}
 #endregion
 
 
