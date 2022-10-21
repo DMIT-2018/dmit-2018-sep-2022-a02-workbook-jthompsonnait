@@ -29,12 +29,12 @@ void Main()
 		List<TrackSelection> tracklist_display = TrackService_FetchTrackBy(searchType, searchPattern);
 		//tracklist_display.Dump();
 
-		//  PlaylistTrack is the BLL
+		//  PlaylistTrackService is the BLL
 		//  FetchPlaylist is the method name
 
 		//  string playlistName = "hansenb1";
 		string userName = "HansenB";
-		//  List<PlaylistTrackInfo> playlist_display = PlaylistTrack_FetchPlaylist(playlistName, userName);
+		//  List<PlaylistTrackInfo> playlist_display = PlaylistTrackService_FetchPlaylist(playlistName, userName);
 		//  playlist_display.Dump();
 		#endregion
 
@@ -46,7 +46,7 @@ void Main()
 
 		string playlistName = null;// "hansenbtest";
 		int trackID = 822;
-		PlaylistTrack_AddTrack(playlistName, userName, trackID);
+		PlaylistTrackService_AddTrack(playlistName, userName, trackID);
 		#endregion
 	}
 	catch (AggregateException ex)
@@ -60,18 +60,20 @@ void Main()
 	{
 		GetInnerException(ex).Message.Dump();
 	}
-	catch(Exception ex)
+	catch (Exception ex)
 	{
 		GetInnerException(ex).Message.Dump();
 	}
 }
 
+#region Methods
 private Exception GetInnerException(Exception ex)
 {
 	while (ex.InnerException != null)
 		ex = ex.InnerException;
 	return ex;
 }
+#endregion
 
 // You can define other methods, fields, classes and namespaces here
 #region Models
@@ -121,7 +123,7 @@ public List<TrackSelection> TrackService_FetchTrackBy(string searchType
 
 #region PlaylistTrack Bll (PlaylistTrackService)
 #region Query
-public List<PlaylistTrackInfo> PlaylistTrack_FetchPlaylist(string playlistName,
+public List<PlaylistTrackInfo> PlaylistTrackService_FetchPlaylist(string playlistName,
 														string userName)
 {
 	IEnumerable<PlaylistTrackInfo> playlistTrackInfos = PlaylistTracks
@@ -141,11 +143,15 @@ public List<PlaylistTrackInfo> PlaylistTrack_FetchPlaylist(string playlistName,
 #endregion
 
 #region Commands
-public void PlaylistTrack_AddTrack(string playlistName, string userName, int trackID)
+public void PlaylistTrackService_AddTrack(string playlistName, string userName, int trackID)
 {
 	//  create local variables
+	bool trackExist = false;
+	Playlists playList = null;
+	int trackNumber = 0;
+	bool playlistTrackExist = false;
 
-
+	#region Business Logic and Parameter Exceptions
 	//  create a List<Exception> to contain all discovered errors
 	List<Exception> errorList = new List<Exception>();
 
@@ -169,7 +175,61 @@ public void PlaylistTrack_AddTrack(string playlistName, string userName, int tra
 	{
 		throw new ArgumentNullException("User name is missing");
 	}
-}
+	#endregion
+	//  check that the incoming data exists
+	trackExist = Tracks
+		.Where(x => x.TrackId == trackID)
+		.Select(x => x.TrackId)
+		.Any();
+	if (!trackExist)
+	{
+		throw new ArgumentNullException("Selected track no longer is on file.  Refresh track table");
+	}
+
+	//  Business Process
+	playList = Playlists
+		.Where(x => x.Name == playlistName
+					&& x.UserName == userName)
+		.FirstOrDefault();
+	if (playList == null)
+	{
+		playList = new Playlists()
+		{
+			Name = playlistName,
+			UserName = userName
+		};
+		//stage (only in memory)
+		Playlists.Add(playList);
+		trackNumber = 1;
+	}
+	else
+	{
+		//  playlist already exist
+		//	rule:	unique tracks on playlist
+		playlistTrackExist = PlaylistTracks
+							//.Where(x => x.TrackId == trackID)
+							.Any(x => x.Playlist.Name == playlistName
+								&& x.Playlist.UserName == userName
+								&& x.TrackId == trackID);
+
+		if (playlistTrackExist)
+		{
+			var songName = Tracks
+							.Where(x => x.TrackId == trackID)
+							.Select(x => x.Name)
+							.FirstOrDefault();
+			//  rule violation
+			errorList.Add(new Exception($"Selected track({songName}) is already on the playlist"));
+		}
+		else
+		{
+			trackNumber = PlaylistTracks
+							.Where(x => x.Playlist.Name == playlistName &&
+										x.Playlist.UserName == userName)
+							.Count();
+			trackNumber++;
+		}
+	}
 #endregion
 
 
