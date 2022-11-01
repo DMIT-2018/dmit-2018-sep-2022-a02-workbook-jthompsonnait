@@ -526,31 +526,52 @@ public void PlaylistTrack_MoveTracks(string playlistName, string userName,
 						.Select(x => x.Name)
 						.SingleOrDefault();
 
-		if (tracklistinfo[i].TrackInput  == tracklistinfo[i+1].TrackInput)
+		if (tracklistinfo[i].TrackInput == tracklistinfo[i + 1].TrackInput)
 		{
 			errorList.Add(new Exception($"{songName1} and {songName2} have the same re-sequence value. Re-sequence numbers must be unique"));
 		}
 
 	}
 
+	trackNumber = 1;
+	foreach (PlaylistTrackTRX item in tracklistinfo)
+	{
+		playlistTrackExists = PlaylistTracks
+								.Where(x => x.Playlist.Name.Equals(playlistName)
+								&& x.Playlist.UserName.Equals(userName)
+								&& x.TrackId == item.TrackID)
+								.FirstOrDefault();
+		if (playlistTrackExists != null)
+		{
+			playlistTrackExists.TrackNumber = trackNumber;
+			PlaylistTracks.Update(playlistTrackExists);
+
+			//  This library is not directly accessable by linqpad
+			//	EntityEntry<PlaylistTracks> updating = _context.Entry(playlistTracks);
+			//	Updating.State = Mircosoft.EntityFrameworkCore.EntityState.Modify;
+
+			// Get ready for next track
+			trackNumber++;
+		}
+		else
+		{
+			var songname = Tracks
+							.Where(x => x.TrackId == item.TrackID)
+							.Select(x => x.Name)
+							.SingleOrDefault();
+			errorList.Add(new Exception($"The track ({songname}) is no loinger on file.  Please remove"));
+		}
+	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	if (errorList.Count() > 0)
+	{
+		throw new AggregateException("Unable to remove request tracks.  Check concerns", errorList);
+	}
+	else
+	{
+		SaveChanges();
+	}
 }
 #endregion
 
