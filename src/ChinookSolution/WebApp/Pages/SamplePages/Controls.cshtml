@@ -20,10 +20,11 @@
 {
     <p>@Model.Feedback</p>
 }
-<form method="post">
-    <section class="setflex">
-        <div class="oneThird">
-            <h3>TextBoxes</h3>
+
+<section class="setflex">
+    <div class="oneThird">
+        <h3>TextBoxes</h3>
+        <form method="post">
             <label>
                 Enter an email
                 <input type="email" asp-for="EmailText"
@@ -50,25 +51,50 @@
                     name="theTextButton" asp-page-handler="TextBox">
                 Text Submit
             </button>
+        </form>
+    </div>
+    <div class="oneThird">
+        <h3>RadioButtons CheckBox TextArea</h3>
+        <form method="post">
+            <label>
+                Select favorite meal
+            </label>
+            @* <input type="radio" value="breakfast" asp-for="Meal" />
+            &nbsp; Breakfast <br />
+            <input type="radio" value="lunch" asp-for="Meal" />
+            &nbsp; Lunch <br />
+            <input type="radio" value="dinner" asp-for="Meal" />
+            &nbsp; Dinner <br />
+            <input type="radio" value="snacks" asp-for="Meal" />
+            &nbsp; Snacks <br />*@
+            @foreach (var item in Model.Meals)
+            {
+                @* A space is needed for the display*@
+                <input type="radio" value="@item" asp-for="Meal" /> @item<br />
+            }
 
-        </div>
-        <div class="oneThird">
-            <h3>RadioButtons CheckBox TextArea</h3>
-            <form method="post">
-                <button type="submit" value="radiocheckarea" id="theRadioCheckAreaButton"
-                        name="theRadioCheckAreaButton" asp-page-handler="RadioCheckArea">
-                    Radio/Check/Area Submit
-                </button>
-            </form>
-        </div>
-        <div class="oneThird">
-            <h3>List and Slider</h3>
-            <form method="post">
-                <button type="submit" value="listslider" id="theListSliderButton"
-                        name="theListSliderButton" asp-page-handler="ListSlider">
-                    Lists/Slider Submit
-                </button>
-            </form>
-        </div>
-    </section>
-</form>
+            <label>
+                <input type="checkbox" value="true" asp-for="AcceptanceBox"/>
+                &nbsp; I agree to terms
+            </label>
+            <label>
+                Message
+                <textarea rows="5" cols="60" placeholder="Enter message"
+                    asp-for="MessageBody"></textarea>
+            </label>
+            <button type="submit" value="radiocheckarea" id="theRadioCheckAreaButton"
+                    name="theRadioCheckAreaButton" asp-page-handler="RadioCheckArea">
+                Radio/Check/Area Submit
+            </button>
+        </form>
+    </div>
+    <div class="oneThird">
+        <h3>List and Slider</h3>
+        <form method="post">
+            <button type="submit" value="listslider" id="theListSliderButton"
+                    name="theListSliderButton" asp-page-handler="ListSlider">
+                Lists/Slider Submit
+            </button>
+        </form>
+    </div>
+</section>
