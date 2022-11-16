@@ -28,13 +28,49 @@ namespace WebApp.Pages.SamplePages
         [BindProperty]
         public string MessageBody { get; set; }
 
+        [BindProperty]
+        public int MyRide { get; set; }
+        //  Pretend that the following collection is data from a database.
+        //  The collection is based on a 2 property class called SelectionList
+        //  The data for the list will be created in a separate method
+        public List<SelectionList> Rides { get; set; }
+
+        [BindProperty]
+        public string VacationSpot { get; set; }
+
+        public List<string> VacationSpots { get; set; }
 
 
-
+        [BindProperty]
+        public int ReviewRating { get; set; }
 
 
         public void OnGet()
         {
+            PopluateList();
+        }
+
+        public void PopluateList()
+        {
+            //  Create a pertend collection from the database represents different types
+            //      of transportation (rides)
+            int i = 1;
+            Rides = new List<SelectionList>();
+            Rides.Add(new SelectionList(){ValueID = i++, DisplayText = "Car"});
+            Rides.Add(new SelectionList() { ValueID = i++, DisplayText = "Bus" });
+            Rides.Add(new SelectionList() { ValueID = i++, DisplayText = "Bike" });
+            Rides.Add(new SelectionList() { ValueID = i++ ,DisplayText = "Motorcycle" });
+            Rides.Add(new SelectionList() { ValueID = i++, DisplayText = "Plane" });
+            Rides.Add(new SelectionList() { ValueID = i++, DisplayText = "Skates" });
+            Rides.Sort((x,y) => x.DisplayText.CompareTo(y.DisplayText));
+
+            VacationSpots = new List<string>();
+            VacationSpots.Add("California");
+            VacationSpots.Add("Caribbean");
+            VacationSpots.Add("Cruising");
+            VacationSpots.Add("Europe");
+            VacationSpots.Add("Florida");
+            VacationSpots.Add("Mexico");
         }
 
         public IActionResult OnPostTextBox()
@@ -49,6 +85,12 @@ namespace WebApp.Pages.SamplePages
             return Page();
         }
 
-
+        public IActionResult OnPostListSlider()
+        {
+            Feedback = $"Ride {MyRide}; Vacation {VacationSpot}; Review Rating {ReviewRating}";
+            PopluateList();
+            return Page();
+        }
     }
+
 }
