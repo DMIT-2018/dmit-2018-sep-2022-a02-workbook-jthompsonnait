@@ -1,5 +1,6 @@
 ﻿#region Additional Namespaces
 
+using ChinookSystem.BLL;
 using ChinookSystem.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,14 @@ namespace ChinookSystem
 
             //  Add any services that you create in the class library
             //  using .AddTransient<t>(...)
+
+            services.AddTransient<AboutServices>((serviceProvider) =>
+                {
+                    var context = serviceProvider.GetRequiredService<Chinook2018Context>();
+                    //  Create an instance of the service and return the instance
+                    return new AboutServices(context);
+                }
+            );
         }
     }
 }
