@@ -1,15 +1,24 @@
 ﻿#nullable disable
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+#region Additional Namespaces
 using ChinookSystem.DAL;
 using ChinookSystem.Entities;
 using ChinookSystem.ViewModels;
+#endregion
 
 namespace ChinookSystem.BLL
 {
     public class PlaylistTrackServices
     {
         #region Constructor for Context Dependency
-
         private readonly Chinook2018Context _context;
+
         internal PlaylistTrackServices(Chinook2018Context context)
         {
             _context = context;
@@ -28,25 +37,24 @@ namespace ChinookSystem.BLL
                 throw new ArgumentNullException("No user name submitted");
             }
             IEnumerable<PlaylistTrackInfo> results = _context.PlaylistTracks
-                .Where(x => x.Playlist.Name.Equals(playlistname)
-                            && x.Playlist.UserName.Equals(username))
-                .Select(x => new PlaylistTrackInfo
-                {
-                    TrackId = x.TrackId,
-                    TrackNumber = x.TrackNumber,
-                    SongName = x.Track.Name,
-                    Milliseconds = x.Track.Milliseconds
-                })
-                .OrderBy(x => x.TrackNumber);
+                                        .Where(x => x.Playlist.Name.Equals(playlistname)
+                                                 && x.Playlist.UserName.Equals(username))
+                                        .Select(x => new PlaylistTrackInfo
+                                        {
+                                            TrackId = x.TrackId,
+                                            TrackNumber = x.TrackNumber,
+                                            SongName = x.Track.Name,
+                                            Milliseconds = x.Track.Milliseconds
+                                        })
+                                        .OrderBy(x => x.TrackNumber);
             return results.ToList();
         }
-
 
         #endregion
 
         #region Command TRX methods
 
-        void PlaylistTrack_AddTrack(string playlistname, string username, int trackid)
+        public void PlaylistTrack_AddTrack(string playlistname, string username, int trackid)
         {
             //locals
             Track trackexists = null;
@@ -94,8 +102,8 @@ namespace ChinookSystem.BLL
                 // B/R a track may only exist once on a playlist
                 playlisttrackexists = _context.PlaylistTracks
                                         .Where(x => x.Playlist.Name.Equals(playlistname)
-                                                && x.Playlist.UserName.Equals(username)
-                                                && x.TrackId == trackid)
+                                                &&  x.Playlist.UserName.Equals(username)
+                                                &&  x.TrackId == trackid)
                                         .Select(x => x)
                                         .FirstOrDefault();
                 if (playlisttrackexists == null)
@@ -103,7 +111,7 @@ namespace ChinookSystem.BLL
                     //generate the next tracknumber
                     tracknumber = _context.PlaylistTracks
                                     .Where(x => x.Playlist.Name.Equals(playlistname)
-                                                && x.Playlist.UserName.Equals(username))
+                                                &&  x.Playlist.UserName.Equals(username))
                                     .Count();
                     tracknumber++;
                 }
@@ -230,7 +238,7 @@ namespace ChinookSystem.BLL
                     }
                 }
 
-                tracknumber = 1;
+                tracknumber= 1;
                 foreach (PlaylistTrackTRX item in keeplist)
                 {
                     playlisttrackexists = _context.PlaylistTracks
@@ -358,14 +366,14 @@ namespace ChinookSystem.BLL
                                     .Where(x => x.TrackId == tracklistinfo[i + 1].TrackId)
                                     .Select(x => x.Name)
                                     .SingleOrDefault();
-                    if (tracklistinfo[i].TrackInput == tracklistinfo[i + 1].TrackInput)
+                    if (tracklistinfo[i].TrackInput == tracklistinfo[i+1].TrackInput)
                     {
                         errorlist.Add(new Exception($"{songname1} and {songname2} have the same re-sequence value. Re-sequence numbers must be unique"));
                     }
                 }
 
 
-                tracknumber = 1;
+                tracknumber= 1;
                 foreach (PlaylistTrackTRX item in tracklistinfo)
                 {
                     playlisttrackexists = _context.PlaylistTracks
@@ -409,5 +417,6 @@ namespace ChinookSystem.BLL
         }
 
         #endregion
+
     }
 }
