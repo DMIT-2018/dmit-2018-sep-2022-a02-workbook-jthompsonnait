@@ -45,7 +45,6 @@ namespace NorthWind.BLL
         {
             return _context.Products
                 .Where(x => x.ProductID == productID)
-                .OrderBy(x => x.ProductName)
                 .Select(x => new ViewModel.ProductInfo()
                     {
                         ProductID = x.ProductID,

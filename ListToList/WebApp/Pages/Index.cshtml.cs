@@ -10,19 +10,19 @@ namespace WebApp.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly ProductServices _productServices;
 
-        //  command model (Will be updating the table/entity with these records/items)
-        [BindProperty] public List<NorthWind.ViewModel.ProductInfo> NewSaleItems { get; set; } = new();
+        //  command model (Will be updating the table/entity with these records/items)  
+        [BindProperty] public List<NorthWind.ViewModel.ProductInfo> NewSaleItems { get; set; } = new(); //  Sales lines
 
-        //  query model (This is the initial data that we received from our entities)
-        [BindProperty] public List<NorthWind.ViewModel.ProductInfo> Items { get; set; }
+        //  query model (This is the initial data that we received from our entities) 
+        [BindProperty] public List<NorthWind.ViewModel.ProductInfo> Items { get; set; } //  Inventory
 
-        //  product id that is used to select from my items and transfer to my sales itesm
+        //  product id that is used to select from my items and transfer to my sales items
         [BindProperty] public int SelectedProductID { get; set; }
 
-        //  product id that is used to select the command model on my sale items and update he totals (qty * price)
+        //  product id that is used to select the command model on my sale items and update the totals (qty * price)
         [BindProperty] public int RefreshProductID { get; set; }
 
-        //  product id that is used to remove the command model from my sales item and then used to update my item query model
+        //  product id that is used to remove the command model from my sales item and then used to update my item query model (inventory)
         [BindProperty] public int RemoveProductID { get; set; }
 
 
@@ -36,7 +36,7 @@ namespace WebApp.Pages
 
         public void OnGet()
         {
-            //  Update my items query model
+            //  Update my items query model (inventory)
             Items = _productServices.GetProducts();
         }
 
@@ -73,6 +73,7 @@ namespace WebApp.Pages
             return Page();
         }
 
+        // recalc
         public IActionResult OnPostRefreshItem()
         {
             var selectedItem = NewSaleItems.SingleOrDefault(x => x.ProductID == RefreshProductID);
